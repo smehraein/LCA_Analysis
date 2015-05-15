@@ -31,6 +31,13 @@ raw_df["LCA_CASE_EMPLOYER_NAME"] = raw_df["LCA_CASE_EMPLOYER_NAME"].str.replace(
 raw_df["LCA_CASE_EMPLOYER_NAME"] = raw_df["LCA_CASE_EMPLOYER_NAME"].str.replace(" - ", "-")  # remove whitespace
 raw_df["LCA_CASE_EMPLOYER_NAME"] = raw_df["LCA_CASE_EMPLOYER_NAME"].str.replace("  ", " ")  # remove double spaces
 
+# Fix ZIP codes
+postcode = "LCA_CASE_EMPLOYER_POSTAL_CODE"
+
+raw_df = raw_df[raw_df[postcode].astype(str).str.isdigit()]  # remove rows with invalid ZIP
+raw_df[postcode] = raw_df[postcode].astype(int)  # convert to int
+raw_df = raw_df[raw_df[postcode] > 500]  # remove rows with invalid ZIP
+
 # Update status column.
 raw_df = raw_df[raw_df.STATUS != "INVALIDATED"]
 raw_df = raw_df.replace("REJECTED", "DENIED")
