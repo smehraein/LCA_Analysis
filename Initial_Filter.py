@@ -31,7 +31,7 @@ raw_df["LCA_CASE_EMPLOYER_NAME"] = raw_df["LCA_CASE_EMPLOYER_NAME"].str.replace(
 raw_df["LCA_CASE_EMPLOYER_NAME"] = raw_df["LCA_CASE_EMPLOYER_NAME"].str.replace(" - ", "-")  # remove whitespace
 raw_df["LCA_CASE_EMPLOYER_NAME"] = raw_df["LCA_CASE_EMPLOYER_NAME"].str.replace("  ", " ")  # remove double spaces
 
-# Fix ZIP codes
+# Fix ZIP codes.
 postcode = "LCA_CASE_EMPLOYER_POSTAL_CODE"
 
 raw_df = raw_df[raw_df[postcode].astype(str).str.isdigit()]  # remove rows with invalid ZIP
@@ -46,8 +46,8 @@ raw_df = raw_df.replace("REJECTED", "DENIED")
 raw_df = raw_df[raw_df.PW_1 != 0]
 raw_df = raw_df[raw_df.TOTAL_WORKERS != 2013]
 
-# Drop TOTAL_WORKERS column
+# Drop TOTAL_WORKERS column.
 raw_df = raw_df.drop("TOTAL_WORKERS", axis=1)
 
-# Write to .csv
+# Write to csv.
 raw_df.to_csv("Prepped_LCA.csv", encoding="utf-8")
