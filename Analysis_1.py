@@ -17,8 +17,8 @@ for index, row in LCA_df.iterrows():
         elif row[19] > 1000:  # Wages greter than $1000, but less than $10,000 are missing a decimal.
             LCA_df.loc[index, "PW_1"] = row[19]/100.
 
-# Filter by certified applications.
-certified_LCA_df = LCA_df[LCA_df.STATUS.str.contains("CERTIFIED")][LCA_df["PW_1"] < LCA_df["PW_1"].quantile(.99)]
+# Remove top 1%
+LCA_df = LCA_df[LCA_df["PW_1"] < LCA_df["PW_1"].quantile(.99)]
 
 # Open national and state files and read to dataframes.
 f_national = open("National_2014_Wages.xlsx", "r")
@@ -37,7 +37,7 @@ national_df.columns = ["SOC_CODE", "NATIONAL_H_MEAN", "NATIONAL_A_MEAN"]
 state_df.columns = ["STATE", "SOC_CODE", "STATE_H_MEAN", "STATE_A_MEAN"]
 
 # Create the delta dataframe and initialize delta columns to NaN.
-delta_df = pd.merge(certified_LCA_df, national_df, left_on="LCA_CASE_SOC_CODE", right_on="SOC_CODE")
+delta_df = pd.merge(LCA_df, national_df, left_on="LCA_CASE_SOC_CODE", right_on="SOC_CODE")
 delta_df = pd.merge(delta_df, state_df, left_on=["LCA_CASE_WORKLOC1_STATE", "LCA_CASE_SOC_CODE"],
                  right_on=["STATE", "SOC_CODE"])
 
@@ -50,8 +50,8 @@ delta_df["NATIONAL_DELTA"][delta_df["PW_UNIT_1"] == "Year"] = delta_df["PW_1"]/d
 delta_df["STATE_DELTA"][delta_df["PW_UNIT_1"] == "Hour"] = delta_df["PW_1"]/delta_df["STATE_H_MEAN"] - 1
 delta_df["STATE_DELTA"][delta_df["PW_UNIT_1"] == "Year"] = delta_df["PW_1"]/delta_df["STATE_A_MEAN"] - 1
 
-# Drop suspicious value (see ipython notebook for context).
-delta_df = delta_df[delta_df["NATIONAL_DELTA"] < 3]
+# Create filtered dataframe with only certified applications
+certified_delta_df = delta_df[delta_df.STATUS.str.contains("CERTIFIED")]
 
 # Write to csv.
 delta_df.to_csv("Delta_LCA.csv", encoding="utf-8")
