@@ -18,7 +18,13 @@ for index, row in LCA_df.iterrows():
             LCA_df.loc[index, "PW_1"] = row[19]/100.
 
 # Remove top 1%
-LCA_df = LCA_df[LCA_df["PW_1"] < LCA_df["PW_1"].quantile(.99)]
+hour_df = LCA_df[LCA_df["PW_UNIT_1"] == "Hour"]
+extreme_hours = hour_df["LCA_CASE_NUMBER"][hour_df["PW_1"] > hour_df["PW_1"].quantile(.99)]
+year_df = LCA_df[LCA_df["PW_UNIT_1"] == "Year"]
+extreme_years = year_df["LCA_CASE_NUMBER"][year_df["PW_1"] > year_df["PW_1"].quantile(.99)]
+
+LCA_df = LCA_df[~LCA_df["LCA_CASE_NUMBER"].isin(extreme_hours)]  # Remove extreme hourly wages
+LCA_df = LCA_df[~LCA_df["LCA_CASE_NUMBER"].isin(extreme_years)]  # Remove extreme yearly wages
 
 # Open national and state files and read to dataframes.
 f_national = open("National_2014_Wages.xlsx", "r")
